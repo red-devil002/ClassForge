@@ -13,7 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 enum Role {
   ADMIN
   TEACHER
@@ -21,41 +20,41 @@ enum Role {
 }
 
 model User {
-  id         String    @id
-  email      String    @unique
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  role       Role
-  teacher    Teacher?
-  student    Student?
+  id        String   @id
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role
+  teacher   Teacher?
+  student   Student?
 }
 
 model Teacher {
-  id          String    @id @default(cuid())
-  userId      String    @unique
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String
-  gender      String?
-  bio         String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  students    Student[]
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  gender    String?
+  bio       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  students  Student[]
 }
 
 model Student {
-  id                    String    @id @default(cuid())
-  userId                String    @unique
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name                  String
-  gender                String
-  age                   Int
-  academicScore         Float
-  grades                String
-  wellBeingScore        Float
-  socioEconomicsStatus  String
-  activities            String[]
-  teacherId             String?
-  teacher               Teacher?  @relation(fields: [teacherId], references: [id])
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  name                 String
+  gender               String
+  age                  Int
+  academicScore        Float
+  grades               String
+  wellBeingScore       Float
+  socioEconomicsStatus String
+  activities           String[]
+  teacherId            String?
+  teacher              Teacher? @relation(fields: [teacherId], references: [id])
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }

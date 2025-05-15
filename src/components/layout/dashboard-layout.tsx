@@ -1,20 +1,20 @@
+"use client"
+import { Sidebar } from '@/components/layout/sidebar';
+import { usePathname } from 'next/navigation';
 
-import { ReactNode } from "react";
-import { Navbar } from "./navbar";
-import { Sidebar } from "./sidebar";
+export function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
+  // Pages where sidebar should not be shown
+  const noSidebarPages = ['/', '/signup', '/signin', '/sign-in', '/sign-up', '/login'];
+  const shouldShowSidebar = !noSidebarPages.includes(pathname);
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
       <div className="flex-1 flex">
-        <Sidebar />
-        <main className="flex-1 py-6 px-4 md:px-6 overflow-y-auto">
-          <div className="container mx-auto">{children}</div>
+        {shouldShowSidebar && <Sidebar />}
+        <main className={`flex-1 overflow-y-auto ${!shouldShowSidebar ? 'w-full' : ''}`}>
+          <div className="container-1 mx-auto">{children}</div>
         </main>
       </div>
     </div>

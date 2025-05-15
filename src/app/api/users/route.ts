@@ -1,15 +1,16 @@
 
 import { createUser } from '@/lib/api-handlers';
+import { db } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
     const data = await request.json();
     const { id, email, role, name } = data;
-    
+
     if (!id || !email || !role || !name) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
-    
+
     const user = await createUser({ id, email, role, name });
     return Response.json({ user });
   } catch (error: any) {

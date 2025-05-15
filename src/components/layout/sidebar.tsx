@@ -40,8 +40,8 @@ export function Sidebar({ className }: SidebarProps) {
       icon: Users,
     },
     {
-      title: "Students",
-      href: "/admin/students",
+      title: "Add Student",
+      href: "/add-student",
       icon: GraduationCap,
     },
     {
@@ -49,6 +49,11 @@ export function Sidebar({ className }: SidebarProps) {
       href: "/admin/settings",
       icon: Settings,
     },
+    {
+      title:"Priorities",
+      href:"/priorities",
+      icon:BarChart
+    }
   ];
 
   const TeacherNav = [
@@ -58,8 +63,8 @@ export function Sidebar({ className }: SidebarProps) {
       icon: Home,
     },
     {
-      title: "Students",
-      href: "/teacher/students",
+      title: "Add Student",
+      href: "/add-student",
       icon: GraduationCap,
     },
     {
@@ -67,6 +72,11 @@ export function Sidebar({ className }: SidebarProps) {
       href: "/teacher/profile",
       icon: UserCircle,
     },
+    {
+      title:"Priorities",
+      href:"/priorities",
+      icon:BarChart
+    }
   ];
 
   const StudentNav = [

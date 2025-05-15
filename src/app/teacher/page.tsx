@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
 
 interface TeacherDashboardSummary {
   totalStudents: number;
@@ -46,7 +45,6 @@ export default function TeacherDashboard() {
   }, []);
 
   return (
-    <DashboardLayout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
         <p className="text-gray-500">Welcome back! Here's an overview of your class.</p>
@@ -284,6 +282,5 @@ export default function TeacherDashboard() {
           </Card>
         </div>
       </div>
-    </DashboardLayout>
   );
 }

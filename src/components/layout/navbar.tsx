@@ -1,4 +1,5 @@
 
+"use client"
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -47,26 +48,26 @@ export function Navbar() {
               </span>
             </a>
           </div>
-          
+
           {/* Desktop menu */}
           <nav className="hidden md:flex items-center gap-6">
             {user ? (
               <>
-                <a 
-                  href={getDashboardLink()} 
+                <a
+                  href={getDashboardLink()}
                   className="text-sm font-medium transition-colors hover:text-primary"
                 >
                   Dashboard
                 </a>
-                <a 
-                  href="/profile" 
+                <a
+                  href="/profile"
                   className="text-sm font-medium transition-colors hover:text-primary"
                 >
                   Profile
                 </a>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={signOut}
                   className="flex items-center gap-1"
                 >
@@ -76,8 +77,8 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <a 
-                  href="/signin" 
+                <a
+                  href="/signin"
                   className="text-sm font-medium transition-colors hover:text-primary"
                 >
                   Sign In
@@ -91,9 +92,9 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -113,21 +114,21 @@ export function Navbar() {
           <div className="container mx-auto px-4 py-4 space-y-4">
             {user ? (
               <>
-                <a 
-                  href={getDashboardLink()} 
+                <a
+                  href={getDashboardLink()}
                   className="block text-sm font-medium transition-colors hover:text-primary"
                 >
                   Dashboard
                 </a>
-                <a 
-                  href="/profile" 
+                <a
+                  href="/profile"
                   className="block text-sm font-medium transition-colors hover:text-primary"
                 >
                   Profile
                 </a>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={signOut}
                   className="flex items-center gap-1 w-full justify-start px-0"
                 >
@@ -137,8 +138,8 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <a 
-                  href="/signin" 
+                <a
+                  href="/signin"
                   className="block text-sm font-medium transition-colors hover:text-primary"
                 >
                   Sign In
