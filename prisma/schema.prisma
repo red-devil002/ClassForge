@@ -42,19 +42,29 @@ model Teacher {
 }
 
 model Student {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
+  id                   String   @id @default(cuid()) // Matches Python: id as String
+  userId               String   @unique // Unique identifier from auth (e.g., Supabase)
   name                 String
-  gender               String
-  age                  Int
-  academicScore        Float
-  grades               String
-  wellBeingScore       Float
-  socioEconomicsStatus String
-  activities           String[]
-  teacherId            String?
+  gender               String?
+  age                  Int?
+  academicScore        Float // Used in GCN
+  classId              Int?
+  grades               String?
+  wellBeingScore       Float // Used in GCN
+  socioEconomicsStatus String?
+  activities           String
+  teacherId            String? // Optional FK
+  friends              String?
+  disrespectfull       String?
   teacher              Teacher? @relation(fields: [teacherId], references: [id])
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+  class                Class?   @relation(fields: [classId], references: [id])
+}
+
+model Class {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  students Student[]
 }

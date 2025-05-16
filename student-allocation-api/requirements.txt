@@ -1,0 +1,18 @@
+# Core
+flask
+flask-cors
+python-dotenv
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# ML/Graph
+torch
+torch-geometric
+scikit-learn
+pandas
+numpy
+
+# Optional utilities
+gunicorn

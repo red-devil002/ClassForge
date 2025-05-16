@@ -16,7 +16,9 @@ interface StudentInput {
     socioEconomicsStatus: string;
     activities: string;
     email: string;
-    password: string
+    password: string;
+    friends: string;
+    disrespectfull: string
 }
 
 // Mock function to simulate adding a student
@@ -47,7 +49,9 @@ export default function AddStudentForm() {
         socioEconomicsStatus: "",
         activities: "",
         email: "",
-        password: ""
+        password: "",
+        friends: "",
+        disrespectfull: ""
     };
 
     // Form state
@@ -400,6 +404,40 @@ export default function AddStudentForm() {
                                     value={formData.activities}
                                     onChange={handleChange}
                                     placeholder="Enter activities separated by commas (e.g. Soccer, Art Club, Chess)"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="friends" className="block text-sm font-medium text-gray-700">
+                                Friends
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="friends"
+                                    name="friends"
+                                    type="text"
+                                    value={formData.friends}
+                                    onChange={handleChange}
+                                    placeholder="Enter friends separated by commas (e.g. John, Eva) make sure name is correct"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label htmlFor="disrespectfull" className="block text-sm font-medium text-gray-700">
+                                Disrespectfull
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="disrespectfull"
+                                    name="disrespectfull"
+                                    type="text"
+                                    value={formData.disrespectfull}
+                                    onChange={handleChange}
+                                    placeholder="Enter disrespectfull separated by commas (e.g. John, Eva) make sure name is correct"
                                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     disabled={isSubmitting}
                                 />
