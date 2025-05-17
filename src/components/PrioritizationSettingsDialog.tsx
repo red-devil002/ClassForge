@@ -1,15 +1,256 @@
-"use client"
-import { useState } from 'react';
-import { Loader } from 'lucide-react';
+// "use client";
+
+// import { useState, ChangeEvent, FormEvent } from "react";
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+// import { Button } from "@/components/ui/button";
+// import { Loader, Info } from "lucide-react";
+
+// type FormKeys = "academic" | "wellbeing" | "friends" | "disrespect" | "activities";
+
+// interface PrioritizationSettingsDialogProps {
+//     isOpen: boolean;
+//     onClose: () => void;
+//     onSubmit: (data: Record<FormKeys, number>) => void;
+//     isSubmitting: boolean;
+//     error: string;
+//     success: boolean;
+// }
+
+// const SLIDER_CONFIGS: {
+//     name: FormKeys;
+//     label: string;
+//     min: number;
+//     max: number;
+//     step: number;
+//     helper?: string;
+// }[] = [
+//         {
+//             name: "academic",
+//             label: "Academic Importance",
+//             min: 0,
+//             max: 1,
+//             step: 0.1,
+//             helper: "How important are academic results?",
+//         },
+//         {
+//             name: "wellbeing",
+//             label: "Wellbeing Priority",
+//             min: 0,
+//             max: 1,
+//             step: 0.1,
+//             helper: "Consider how much you value personal wellbeing.",
+//         },
+//         {
+//             name: "friends",
+//             label: "Friends Importance",
+//             min: 0,
+//             max: 10,
+//             step: 1,
+//             helper: "Rate how important friendships are to you.",
+//         },
+//         {
+//             name: "disrespect",
+//             label: "Disrespect Tolerance",
+//             min: 0,
+//             max: 10,
+//             step: 1,
+//             helper: "Lower values mean you’re less tolerant of disrespect.",
+//         },
+//         {
+//             name: "activities",
+//             label: "Activities Engagement",
+//             min: 0,
+//             max: 10,
+//             step: 1,
+//             helper: "How involved do you want to be in extracurricular activities?",
+//         },
+//     ];
+
+// export default function PrioritizationSettingsDialog({
+//     isOpen,
+//     onClose,
+//     onSubmit,
+//     isSubmitting,
+//     error,
+//     success,
+// }: PrioritizationSettingsDialogProps) {
+//     const [formValues, setFormValues] = useState<Record<FormKeys, number>>({
+//         academic: 0.5,
+//         wellbeing: 0.5,
+//         friends: 5,
+//         disrespect: 5,
+//         activities: 5,
+//     });
+
+//     const handleSliderChange = (e: ChangeEvent<HTMLInputElement>) => {
+//         const { name, value } = e.target;
+//         setFormValues((prev) => ({
+//             ...prev,
+//             [name]: parseFloat(value),
+//         }));
+//     };
+
+//     const handleSubmit = (e: FormEvent) => {
+//         e.preventDefault();
+//         onSubmit(formValues);
+//     };
+
+//     return (
+//         <Dialog open={isOpen} onOpenChange={onClose}>
+//             <DialogContent className="sm:max-w-lg w-full">
+//                 <DialogHeader>
+//                     <DialogTitle className="text-center text-2xl font-semibold text-gray-800">
+//                         Set Prioritization Settings
+//                     </DialogTitle>
+//                 </DialogHeader>
+
+//                 {error && (
+//                     <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded-md">
+//                         {error}
+//                     </div>
+//                 )}
+
+//                 {success && (
+//                     <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-3 rounded-md">
+//                         Settings saved! Redirecting...
+//                     </div>
+//                 )}
+
+//                 <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+//                     {SLIDER_CONFIGS.map(({ name, label, min, max, step, helper }) => (
+//                         <div key={name}>
+//                             <div className="flex justify-between items-center mb-1">
+//                                 <label htmlFor={name} className="text-sm font-medium text-gray-700">
+//                                     {label}
+//                                 </label>
+//                                 <span className="text-sm font-semibold text-blue-600">{formValues[name]}</span>
+//                             </div>
+
+//                             <input
+//                                 type="range"
+//                                 id={name}
+//                                 name={name}
+//                                 min={min}
+//                                 max={max}
+//                                 step={step}
+//                                 value={formValues[name]}
+//                                 onChange={handleSliderChange}
+//                                 disabled={isSubmitting}
+//                                 className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+//                             />
+
+//                             <div className="flex justify-between text-xs text-gray-400 mt-1">
+//                                 <span>{min}</span>
+//                                 <span>{max}</span>
+//                             </div>
+
+//                             {helper && (
+//                                 <p className="text-xs text-gray-500 mt-1 flex gap-1 items-start">
+//                                     <Info className="w-3 h-3 mt-0.5 text-blue-400" /> {helper}
+//                                 </p>
+//                             )}
+//                         </div>
+//                     ))}
+
+//                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
+//                         <Button
+//                             type="button"
+//                             variant="outline"
+//                             onClick={onClose}
+//                             className="w-full sm:w-auto"
+//                         >
+//                             Cancel
+//                         </Button>
+
+//                         <Button
+//                             type="submit"
+//                             disabled={isSubmitting}
+//                             className="w-full sm:w-auto"
+//                         >
+//                             {isSubmitting ? (
+//                                 <span className="flex items-center">
+//                                     <Loader size={18} className="animate-spin mr-2" />
+//                                     Saving...
+//                                 </span>
+//                             ) : (
+//                                 "Save Priorities"
+//                             )}
+//                         </Button>
+//                     </div>
+//                 </form>
+//             </DialogContent>
+//         </Dialog>
+//     );
+// }
+
+
+"use client";
+
+import { useState, ChangeEvent } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader, Info } from "lucide-react";
+
+type FormKeys = "academic" | "wellbeing" | "friends" | "disrespect" | "activities";
 
 interface PrioritizationSettingsDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => void;
+    onSubmit: (data: Record<FormKeys, number>) => void;
     isSubmitting: boolean;
     error: string;
-    success: boolean
+    success: boolean;
 }
+
+const SLIDER_CONFIGS: {
+    name: FormKeys;
+    label: string;
+    min: number;
+    max: number;
+    step: number;
+    helper?: string;
+}[] = [
+        {
+            name: "academic",
+            label: "Academic Importance",
+            min: 0,
+            max: 1,
+            step: 0.1,
+            helper: "How important are academic results?",
+        },
+        {
+            name: "wellbeing",
+            label: "Wellbeing Priority",
+            min: 0,
+            max: 1,
+            step: 0.1,
+            helper: "Consider how much you value personal wellbeing.",
+        },
+        {
+            name: "friends",
+            label: "Friends Importance",
+            min: 0,
+            max: 10,
+            step: 1,
+            helper: "Rate how important friendships are to you.",
+        },
+        {
+            name: "disrespect",
+            label: "Disrespect Tolerance",
+            min: 0,
+            max: 10,
+            step: 1,
+            helper: "Lower values mean you're less tolerant of disrespect.",
+        },
+        {
+            name: "activities",
+            label: "Activities Engagement",
+            min: 0,
+            max: 10,
+            step: 1,
+            helper: "How involved do you want to be in extracurricular activities?",
+        },
+    ];
 
 export default function PrioritizationSettingsDialog({
     isOpen,
@@ -17,131 +258,116 @@ export default function PrioritizationSettingsDialog({
     onSubmit,
     isSubmitting,
     error,
-    success
+    success,
 }: PrioritizationSettingsDialogProps) {
-    // Define state for form values
-    const [formValues, setFormValues] = useState({
+    const [formValues, setFormValues] = useState<Record<FormKeys, number>>({
         academic: 0.5,
         wellbeing: 0.5,
         friends: 5,
         disrespect: 5,
-        activities: 5
+        activities: 5,
     });
 
-    // Handle slider changes
-    const handleSliderChange = (e) => {
+    const handleSliderChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setFormValues({
-            ...formValues,
-            [name]: parseFloat(value)
-        });
+        setFormValues((prev) => ({
+            ...prev,
+            [name]: parseFloat(value),
+        }));
     };
 
-    // Handle form submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = () => {
         onSubmit(formValues);
     };
 
-    // Render slider with label and current value
-    const renderSlider = (name, label, min, max, step) => {
-        const value = formValues[name];
-        return (
-            <div className="mb-6 bg-white rounded-lg shadow-sm border border-gray-100">
-                <div className="flex justify-between items-center mb-2">
-                    <label htmlFor={name} className="text-gray-700 font-medium text-sm">
-                        {label}
-                    </label>
-                    <span className="text-blue-600 font-semibold">
-                        {value}
-                    </span>
-                </div>
-                <input
-                    type="range"
-                    id={name}
-                    name={name}
-                    min={min}
-                    max={max}
-                    step={step}
-                    value={value}
-                    onChange={handleSliderChange}
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50"
-                    disabled={isSubmitting}
-                    aria-valuemin={min}
-                    aria-valuemax={max}
-                    aria-valuenow={value}
-                />
-                <div className="flex justify-between mt-1 text-xs text-gray-500">
-                    <span>{min}</span>
-                    <span>{max}</span>
-                </div>
-            </div>
-        );
-    };
-
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="w-full max-w-md">
-                <div className="bg-white rounded-xl shadow-md overflow-hidden p-6 border border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                        <h1 className="text-2xl font-semibold text-gray-800">
-                            Set Prioritization Settings
-                        </h1>
-                        <button
-                            onClick={onClose}
-                            className="text-gray-500 hover:text-gray-700"
-                        >
-                            ✕
-                        </button>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-lg max-w-[95vw] w-full p-4 sm:p-6 overflow-y-auto max-h-[90vh]">
+                <DialogHeader>
+                    <DialogTitle className="text-center text-xl sm:text-2xl font-semibold text-gray-800">
+                        Set Prioritization Settings
+                    </DialogTitle>
+                </DialogHeader>
+
+                {error && (
+                    <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-2 sm:p-3 rounded-md text-sm sm:text-base">
+                        {error}
                     </div>
+                )}
 
-                    {error && (
-                        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded text-red-700">
-                            <p>{error}</p>
-                        </div>
-                    )}
+                {success && (
+                    <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-2 sm:p-3 rounded-md text-sm sm:text-base">
+                        Settings saved! Redirecting...
+                    </div>
+                )}
 
-                    {success && (
-                        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded text-green-700">
-                            <p>Settings saved successfully! Redirecting...</p>
-                        </div>
-                    )}
+                <div className="space-y-4 sm:space-y-6 mt-2 sm:mt-4">
+                    {SLIDER_CONFIGS.map(({ name, label, min, max, step, helper }) => (
+                        <div key={name} className="pb-1">
+                            <div className="flex flex-wrap sm:flex-nowrap justify-between items-center mb-1">
+                                <label htmlFor={name} className="text-xs sm:text-sm font-medium text-gray-700 mr-2">
+                                    {label}
+                                </label>
+                                <span className="text-xs sm:text-sm font-semibold text-blue-600 ml-auto">
+                                    {formValues[name]}
+                                </span>
+                            </div>
 
-                    <form onSubmit={handleSubmit}>
-                        {renderSlider("academic", "Academic Importance", 0, 1, 0.1)}
-                        {renderSlider("wellbeing", "Wellbeing Priority", 0, 1, 0.1)}
-                        {renderSlider("friends", "Friends Importance", 0, 10, 1)}
-                        {renderSlider("disrespect", "Disrespect Tolerance", 0, 10, 1)}
-                        {renderSlider("activities", "Activities Engagement", 0, 10, 1)}
-
-                        <div className="flex gap-4 mt-6">
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg py-3 px-5 transition duration-150 ease-in-out"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
+                            <input
+                                type="range"
+                                id={name}
+                                name={name}
+                                min={min}
+                                max={max}
+                                step={step}
+                                value={formValues[name]}
+                                onChange={handleSliderChange}
                                 disabled={isSubmitting}
-                                className="flex-1 bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 text-white font-medium rounded-lg py-3 px-5 transition duration-150 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? (
-                                    <span className="flex items-center justify-center">
-                                        <Loader size={20} className="animate-spin mr-2" />
-                                        Saving...
-                                    </span>
-                                ) : (
-                                    "Save Priorities"
-                                )}
-                            </button>
+                                className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+
+                            <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                <span>{min}</span>
+                                <span>{max}</span>
+                            </div>
+
+                            {helper && (
+                                <p className="text-xs text-gray-500 mt-1 flex gap-1 items-start">
+                                    <Info className="w-3 h-3 mt-0.5 text-blue-400 flex-shrink-0" />
+                                    <span>{helper}</span>
+                                </p>
+                            )}
                         </div>
-                    </form>
+                    ))}
+
+                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={onClose}
+                            className="w-full text-sm sm:text-base"
+                        >
+                            Cancel
+                        </Button>
+
+                        <Button
+                            type="button"
+                            disabled={isSubmitting}
+                            onClick={handleSubmit}
+                            className="w-full text-sm sm:text-base"
+                        >
+                            {isSubmitting ? (
+                                <span className="flex items-center justify-center">
+                                    <Loader size={16} className="animate-spin mr-2" />
+                                    Saving...
+                                </span>
+                            ) : (
+                                "Save Priorities"
+                            )}
+                        </Button>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -5,7 +5,7 @@ import { AuthProvider } from '@/context/auth-context';
 import { RootLayoutContent } from '@/components/layout/dashboard-layout';
 
 export const metadata: Metadata = {
-  title: 'Class Gen',
+  title: 'Class Forge',
   description: 'AI Integrated',
 };
 

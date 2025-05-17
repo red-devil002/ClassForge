@@ -1,17 +1,16 @@
-import ClassGraph from "@/components/classGraph";
+"use client";
 
-const students = [
-  { id: "1", name: "Alice", friends: "Bob,Charlie", disrespectful: "Eve" },
-  { id: "2", name: "Bob", friends: "Alice", disrespectful: "" },
-  { id: "3", name: "Charlie", friends: "", disrespectful: "Alice" },
-  { id: "4", name: "Eve", friends: "", disrespectful: "" },
-];
+import TeacherAnalysis from "@/components/TeacherAnalysis";
+import StudentAnalysis from "@/components/StudentAnalysis";
+import { useAuth } from "@/context/auth-context";
 
 export default function ClassGraphPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Class Graph</h1>
-      <ClassGraph students={students} />
-    </div>
-  );
+  const { role, isLoading } = useAuth();
+
+  if (isLoading) return <p>Loading...</p>;
+
+  if (role === "TEACHER") return <TeacherAnalysis />;
+  if (role === "STUDENT") return <StudentAnalysis />;
+
+  return <p className="text-center mt-10">Access restricted to teachers or students only.</p>;
 }

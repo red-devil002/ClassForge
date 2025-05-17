@@ -44,7 +44,7 @@ model Teacher {
 model Student {
   id                   String   @id @default(cuid()) // Matches Python: id as String
   userId               String   @unique // Unique identifier from auth (e.g., Supabase)
-  name                 String
+  name                 String @unique
   gender               String?
   age                  Int?
   academicScore        Float // Used in GCN

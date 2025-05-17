@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { z } from "zod";
@@ -15,11 +15,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  email: z.string().email({ message: "Enter a valid email address" }),
+  password: z.string().min(6, { message: "Minimum 6 characters" }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -36,26 +43,28 @@ export function SignInForm() {
     },
   });
 
-  async function onSubmit(values: FormValues) {
+  const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
       await signIn(values.email, values.password);
     } catch (err: any) {
-      setError(err.message || "An error occurred during sign in");
+      setError(err.message || "Invalid credentials. Please try again.");
     }
-  }
+  };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-md backdrop-blur-md bg-white/90 shadow-lg border border-gray-200">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
+        <CardTitle className="text-2xl font-extrabold text-gray-800">
+          Welcome back 👋
+        </CardTitle>
+        <CardDescription className="text-gray-500">
+          Sign in to your ClassForge account
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
               name="email"
@@ -63,7 +72,11 @@ export function SignInForm() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
+                    <Input
+                      placeholder="your@email.com"
+                      type="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -76,23 +89,31 @@ export function SignInForm() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="******" {...field} />
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             {error && <p className="text-sm text-red-500">{error}</p>}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <p className="text-sm text-muted-foreground">
+      <CardFooter className="text-sm text-muted-foreground flex flex-col items-center">
+        <p>
           Don't have an account?{" "}
-          <a href="/signUp" className="text-primary hover:underline">
+          <a href="/signup" className="text-primary font-medium hover:underline">
             Sign Up
           </a>
         </p>

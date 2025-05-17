@@ -7,38 +7,19 @@ import toast from 'react-hot-toast';
 type Student = {
     student_id: number;
     name: string;
-    academic: number;
-    wellbeing: number;
+    gender: string;
+    age: number;
+    academicScore: number;
+    grades: string;
+    wellBeingScore: number;
+    socioEconomicsStatus: string;
     activities: string;
-    assigned_class: number;
+    assigned_class: string;
+    friends?: string;
+    disrespectfull?: string;
+    email: string;
+    password: string;
 };
-
-const initialData: Student[] = [
-    {
-        student_id: 1,
-        name: "Alice",
-        academic: 85,
-        wellbeing: 70,
-        activities: "sports",
-        assigned_class: 1,
-    },
-    {
-        student_id: 2,
-        name: "Bob",
-        academic: 78,
-        wellbeing: 65,
-        activities: "music",
-        assigned_class: 2,
-    },
-    {
-        student_id: 3,
-        name: "Charlie",
-        academic: 92,
-        wellbeing: 80,
-        activities: "art",
-        assigned_class: 3,
-    },
-];
 
 export default function page() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -76,13 +57,14 @@ export default function page() {
                 },
                 body: JSON.stringify(formValues),
             });
-            console.log(res)
             const data = await res.json();
+            console.log("data: ", data)
             setStudents(data.assigned)
             if (res.ok) {
                 toast.success("Allocation completed!")
                 toast.success("You can check allocation in below table and submit when ready")
-                console.log("✅ Allocation complete", data);
+                // console.log("✅ Allocation complete", data);
+                closeDialog()
             } else {
                 console.error("❌ Allocation failed:", data.error);
             }

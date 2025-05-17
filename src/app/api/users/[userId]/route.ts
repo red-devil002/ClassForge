@@ -5,7 +5,10 @@ import { NextResponse } from 'next/server';
 export async function GET(req: Request, context: any) {
     try {
         const { userId } = await context.params;
-        const user = await db.user.findUnique({ where: { id: userId }, select: { role: true } });
+        const user = await db.user.findUnique({
+            where: { id: userId },
+            select: { role: true, teacher: true, student: true },
+        });
 
         if (!user?.role) {
             return NextResponse.json({ message: "User role not found" }, { status: 404 });

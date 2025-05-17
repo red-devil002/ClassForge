@@ -95,11 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await fetchUserRole(data.user.id);
 
         // Wait for role to update before redirecting
-        setTimeout(() => {
-          if (role === 'ADMIN') router.push('/admin');
-          else if (role === 'TEACHER') router.push('/teacher');
-          else if (role === 'STUDENT') router.push('/student');
-        }, 100); // Add delay if needed
+        if (role === 'ADMIN') router.push('/admin');
+        else if (role === 'TEACHER') router.push('/teacher');
+        else if (role === 'STUDENT') router.push('/student');
       }
 
       toast.success("You've been signed in.");

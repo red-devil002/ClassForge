@@ -64,8 +64,8 @@ export async function POST(req: Request) {
 
         const Student = await db.student.create({
             data: {
-                name, gender, age, grades, wellBeingScore, socioEconomicsStatus, academicScore, activities,
-                userId: user.id,friends,disrespectfull
+                name, gender, age, grades, wellBeingScore: Number(wellBeingScore), socioEconomicsStatus, academicScore: Number(academicScore), activities,
+                userId: user.id, friends, disrespectfull
             }
         })
         return NextResponse.json({ message: "Student added successfully", Student, user }, { status: 201 })

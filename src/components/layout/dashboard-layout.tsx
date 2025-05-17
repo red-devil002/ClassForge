@@ -6,7 +6,7 @@ export function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Pages where sidebar should not be shown
-  const noSidebarPages = ['/', '/signup', '/signin', '/sign-in', '/sign-up', '/login'];
+  const noSidebarPages = ['/', '/signUp', '/signin', '/sign-in', '/sign-up', '/login'];
   const shouldShowSidebar = !noSidebarPages.includes(pathname);
 
   return (

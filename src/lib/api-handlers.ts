@@ -54,7 +54,7 @@ export async function createUser(data: {
           grades: '',
           wellBeingScore: 0,
           socioEconomicsStatus: '',
-          activities: [],
+          activities: "",
         },
       });
     }
@@ -179,7 +179,7 @@ export async function createStudent(data: {
   grades: string;
   wellBeingScore: number;
   socioEconomicsStatus: string;
-  activities: string[];
+  activities: string;
   email: string;
   teacherId?: string;
 }) {
