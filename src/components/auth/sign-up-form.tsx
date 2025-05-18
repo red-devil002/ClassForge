@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth, Role } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
 import {
   Form,
   FormControl,
@@ -60,11 +61,14 @@ export function SignUpForm() {
       role: "STUDENT",
     },
   });
-
+  const router = useRouter()
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      await signUp(values.email, values.password, values.role as Role, values.name);
+      const role = await signUp(values.email, values.password, values.role as Role, values.name);
+      if (role === 'ADMIN') router.push('/admin');
+      else if (role === 'TEACHER') router.push('/teacher');
+      else if (role === 'STUDENT') router.push('/student');
     } catch (err: any) {
       setError(err.message || "Something went wrong. Try again.");
     }

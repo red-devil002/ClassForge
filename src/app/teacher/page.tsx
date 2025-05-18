@@ -1,286 +1,450 @@
+'use client'
 
-"use client"
+import { useEffect, useState } from 'react'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card'
+import { Bar, Pie, Line } from 'react-chartjs-2'
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Filler
+} from 'chart.js'
+import { useAuth } from '@/context/auth-context'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Users,
+  GraduationCap,
+  Heart,
+  Activity,
+  AlertTriangle,
+  Clock,
+  ChevronRight,
+  RefreshCw
+} from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Filler
+)
 
-interface TeacherDashboardSummary {
-  totalStudents: number;
-  averageAcademicScore: number;
-  averageWellBeingScore: number;
-  upcomingActivities: number;
+type DashboardData = {
+  name: string
+  totalStudents: number
+  averageAcademicScore: number
+  averageWellBeingScore: number
+  wellBeingDistribution: { scoreRange: string; count: number }[]
+  socialGraph: { label: string; count: number }[]
+  recentStudents: { name: string; academicScore: number; status: string }[]
 }
 
 export default function TeacherDashboard() {
-  const [summary, setSummary] = useState<TeacherDashboardSummary>({
-    totalStudents: 0,
-    averageAcademicScore: 0,
-    averageWellBeingScore: 0,
-    upcomingActivities: 0,
-  });
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth()
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("overview")
+  const [lastUpdated, setLastUpdated] = useState(new Date())
 
   useEffect(() => {
-    // In a real app, this would fetch data from an API
-    const fetchSummaryData = async () => {
-      try {
-        // Simulate API call with timeout
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Simulated data
-        setSummary({
-          totalStudents: 28,
-          averageAcademicScore: 7.6,
-          averageWellBeingScore: 8.4,
-          upcomingActivities: 3,
-        });
-      } catch (error) {
-        console.error("Error fetching summary data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    fetchData()
+  }, [user])
 
-    fetchSummaryData();
-  }, []);
+  const fetchData = async () => {
+    setIsLoading(true)
+    try {
+      if (user?.id) {
+        const res = await fetch(`/api/teacher?userId=${user.id}`)
+        const json = await res.json()
+        setData(json)
+        setLastUpdated(new Date())
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-primary" />
+          <p className="mt-4 text-lg font-medium">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="p-8 text-center">
+        <AlertTriangle className="h-12 w-12 mx-auto text-amber-500 mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Unable to load dashboard</h2>
+        <p className="text-muted-foreground mb-4">We couldn't retrieve your classroom data.</p>
+        <Button onClick={fetchData}>Try Again</Button>
+      </div>
+    )
+  }
+
+  // Academic score visualization helper
+  const getScoreColor = (score: any) => {
+    if (score >= 85) return "text-green-600"
+    if (score >= 70) return "text-blue-600"
+    if (score >= 50) return "text-amber-600"
+    return "text-red-600"
+  }
 
   return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
-        <p className="text-gray-500">Welcome back! Here's an overview of your class.</p>
-        
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i} className="bg-gray-50 animate-pulse">
-                <CardHeader className="pb-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-                </CardContent>
-              </Card>
-            ))}
+    <div className="container mx-auto p-6 max-w-7xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome, {data.name}</h1>
+          <p className="text-muted-foreground mt-1">
+            Here's your classroom insights for today
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Last updated: {lastUpdated.toLocaleTimeString()}
+          </p>
+          <Button size="sm" variant="outline" onClick={fetchData}>
+            <RefreshCw className="h-4 w-4 mr-1" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-6" onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:w-1/2">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="academic">Academic</TabsTrigger>
+          <TabsTrigger value="wellbeing">Well-being</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Quick Stats Row */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Total Students</CardDescription>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-3xl">{data.totalStudents}</CardTitle>
+                  <Users className="h-6 w-6 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="text-xs text-muted-foreground">
+                  Enrolled in your classroom
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Academic Performance</CardDescription>
+                <div className="flex justify-between items-center">
+                  <CardTitle className={`text-3xl ${getScoreColor(data.averageAcademicScore)}`}>
+                    {data.averageAcademicScore.toFixed(1)}
+                  </CardTitle>
+                  <GraduationCap className="h-6 w-6 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="text-xs text-muted-foreground">
+                  Average class score (out of 100)
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Well-being Index</CardDescription>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-3xl">
+                    {data.averageWellBeingScore.toFixed(1)}
+                  </CardTitle>
+                  <Heart className="h-6 w-6 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="text-xs text-muted-foreground">
+                  Average well-being score (out of 10)
+                </div>
+                <div className="mt-2">
+                  <Progress value={data.averageWellBeingScore * 10} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Social Engagement</CardDescription>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-3xl">
+                    {Math.round((data.socialGraph.find(s => s.label === "Engaged")?.count || 0) / data.totalStudents * 100)}%
+                  </CardTitle>
+                  <Activity className="h-6 w-6 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="text-xs text-muted-foreground">
+                  Students socially engaged
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Total Students
-                </CardTitle>
+
+          {/* Charts Row */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card className="md:col-span-1 h-80">
+              <CardHeader>
+                <CardTitle>Well-Being Distribution</CardTitle>
+                <CardDescription>Student count by well-being score range</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{summary.totalStudents}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Students in your class
-                </p>
+                <Bar
+                  data={{
+                    labels: data.wellBeingDistribution.map((w) => w.scoreRange),
+                    datasets: [
+                      {
+                        label: 'Students',
+                        data: data.wellBeingDistribution.map((w) => w.count),
+                        backgroundColor: [
+                          'rgba(239, 68, 68, 0.7)',
+                          'rgba(245, 158, 11, 0.7)',
+                          'rgba(59, 130, 246, 0.7)',
+                          'rgba(16, 185, 129, 0.7)',
+                        ],
+                        borderColor: [
+                          'rgb(239, 68, 68)',
+                          'rgb(245, 158, 11)',
+                          'rgb(59, 130, 246)',
+                          'rgb(16, 185, 129)',
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { display: false },
+                      tooltip: {
+                        callbacks: {
+                          title: (items) => `Score Range: ${items[0].label}`,
+                          label: (context) => `Number of Students: ${context.raw}`
+                        }
+                      }
+                    },
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: {
+                          precision: 0
+                        }
+                      }
+                    }
+                  }}
+                />
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Avg. Academic Score
-                </CardTitle>
+
+            <Card className="md:col-span-1 h-80">
+              <CardHeader>
+                <CardTitle>Social Interaction</CardTitle>
+                <CardDescription>Student engagement profile</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{summary.averageAcademicScore.toFixed(1)}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  On a scale of 1-10
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Avg. Well-being Score
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{summary.averageWellBeingScore.toFixed(1)}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  On a scale of 1-10
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500">
-                  Upcoming Activities
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{summary.upcomingActivities}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Scheduled this week
-                </p>
+              <CardContent className="flex justify-center items-center h-52">
+                <Pie
+                  data={{
+                    labels: data.socialGraph.map((s) => s.label),
+                    datasets: [
+                      {
+                        data: data.socialGraph.map((s) => s.count),
+                        backgroundColor: [
+                          'rgba(16, 185, 129, 0.7)',  // Engaged
+                          'rgba(239, 68, 68, 0.7)',   // Isolated
+                        ],
+                        borderColor: [
+                          'rgb(16, 185, 129)',
+                          'rgb(239, 68, 68)',
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                  options={{
+                    maintainAspectRatio: false,
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: (context) => `${context.label}: ${context.raw} students (${Math.round((context.raw as number / data.totalStudents) * 100)}%)`
+                        }
+                      }
+                    }
+                  }}
+                />
               </CardContent>
             </Card>
           </div>
-        )}
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Student List Preview */}
+
+          {/* Recently Active Students */}
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Students</CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Recently Active Students</CardTitle>
+                  <CardDescription>Student activity in the last 24 hours</CardDescription>
+                </div>
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoading ? (
-                <>
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-3">
-                      <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
-                      <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+            <CardContent>
+              <div className="space-y-4">
+                {data.recentStudents.map((student, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10">
+                        {student.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-medium">{student.name}</p>
+                        <p className="text-sm text-muted-foreground">Academic Score: {student.academicScore}</p>
                       </div>
                     </div>
-                  ))}
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-student/10 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-student" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium">Alex Johnson</p>
-                      <p className="text-sm text-gray-500">Academic Score: 8.2</p>
-                    </div>
-                    <div className="ml-auto text-xs text-gray-500">
-                      <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                        Active
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={student.status === 'Active'
+                          ? 'bg-green-50 text-green-700 border-green-200'
+                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }
+                      >
+                        {student.status}
+                      </Badge>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-student/10 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-student" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium">Maria Garcia</p>
-                      <p className="text-sm text-gray-500">Academic Score: 9.1</p>
-                    </div>
-                    <div className="ml-auto text-xs text-gray-500">
-                      <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-student/10 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-student" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium">David Lee</p>
-                      <p className="text-sm text-gray-500">Academic Score: 7.8</p>
-                    </div>
-                    <div className="ml-auto text-xs text-gray-500">
-                      <span className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
-                        Needs Help
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-student/10 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-student" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium">Sarah Williams</p>
-                      <p className="text-sm text-gray-500">Academic Score: 8.5</p>
-                    </div>
-                    <div className="ml-auto text-xs text-gray-500">
-                      <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </>
-              )}
-              
-              <div className="pt-2">
-                <a href="/teacher/students" className="text-sm text-teacher hover:underline">
-                  View all students →
-                </a>
+                ))}
               </div>
             </CardContent>
           </Card>
-          
-          {/* Activities */}
-          <Card>
+        </TabsContent>
+
+        <TabsContent value="academic" className="space-y-4">
+          <Card className="h-96">
             <CardHeader>
-              <CardTitle>Upcoming Activities</CardTitle>
+              <CardTitle>Academic Performance Trends</CardTitle>
+              <CardDescription>Average class scores over the last semester</CardDescription>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="space-y-2 p-3 rounded-lg border border-gray-100">
-                      <div className="flex justify-between items-center">
-                        <div className="h-5 bg-gray-200 rounded w-1/3 animate-pulse"></div>
-                        <div className="h-4 bg-gray-200 rounded w-[80px] animate-pulse"></div>
-                      </div>
-                      <div className="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="p-3 rounded-lg border border-gray-100 hover:border-teacher/30 hover:bg-teacher/5 transition-colors">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="font-medium">Math Quiz</div>
-                      <div className="text-xs text-gray-500">Tomorrow, 10:00 AM</div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Chapter 5 assessment on algebra fundamentals
-                    </p>
-                  </div>
-                  
-                  <div className="p-3 rounded-lg border border-gray-100 hover:border-teacher/30 hover:bg-teacher/5 transition-colors">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="font-medium">Science Project Due</div>
-                      <div className="text-xs text-gray-500">Dec 18, 3:00 PM</div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Renewable energy demonstration projects
-                    </p>
-                  </div>
-                  
-                  <div className="p-3 rounded-lg border border-gray-100 hover:border-teacher/30 hover:bg-teacher/5 transition-colors">
-                    <div className="flex justify-between items-center mb-1">
-                      <div className="font-medium">Parent-Teacher Meeting</div>
-                      <div className="text-xs text-gray-500">Dec 20, All Day</div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      End of semester progress discussions
-                    </p>
-                  </div>
-                  
-                  <div className="pt-2">
-                    <a href="#" className="text-sm text-teacher hover:underline">
-                      Add new activity →
-                    </a>
-                  </div>
-                </div>
-              )}
+              <Line
+                data={{
+                  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                  datasets: [
+                    {
+                      label: 'Class Average',
+                      data: [68, 72, 75, 72, data.averageAcademicScore],
+                      borderColor: 'rgb(59, 130, 246)',
+                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                      fill: true,
+                      tension: 0.3,
+                    }
+                  ],
+                }}
+                options={{
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: {
+                      min: 50,
+                      max: 100,
+                      title: {
+                        display: true,
+                        text: 'Score'
+                      }
+                    },
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Month'
+                      }
+                    }
+                  }
+                }}
+              />
             </CardContent>
           </Card>
-        </div>
-      </div>
-  );
+        </TabsContent>
+
+        <TabsContent value="wellbeing" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Well-being Indicators</CardTitle>
+                <CardDescription>Key factors affecting student well-being</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm">Emotional State</span>
+                      <span className="text-sm font-medium">7.2/10</span>
+                    </div>
+                    <Progress value={72} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm">Social Connection</span>
+                      <span className="text-sm font-medium">6.8/10</span>
+                    </div>
+                    <Progress value={68} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm">Stress Management</span>
+                      <span className="text-sm font-medium">5.9/10</span>
+                    </div>
+                    <Progress value={59} className="h-2" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm">Classroom Environment</span>
+                      <span className="text-sm font-medium">8.1/10</span>
+                    </div>
+                    <Progress value={81} className="h-2" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
 }

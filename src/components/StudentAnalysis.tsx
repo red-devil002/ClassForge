@@ -3,17 +3,22 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/auth-context";
 import toast from "react-hot-toast";
+import ClassGraph from "./classGraph";
 
 // -----------------------------
 // Types
 // -----------------------------
 type Student = {
+  userId:string
   id: string;
-  userId: string;
   name: string;
+  age: number;
+  grades: string; 
+  gender: string;
   friends: string;
   disrespectfull: string;
 };
+
 
 type Class = {
   id: string;
@@ -22,44 +27,9 @@ type Class = {
 };
 
 // -----------------------------
-// Individual SVG Node Component
-// -----------------------------
-const StudentNode = ({
-  x, y, radius, isHovered, isSelected, onMouseOver, onMouseOut
-}: any) => (
-  <circle
-    cx={x}
-    cy={y}
-    r={radius}
-    fill={isSelected ? "#3b82f6" : "#6495ED"}
-    stroke={isHovered || isSelected ? "#1e40af" : "transparent"}
-    strokeWidth={2}
-    onMouseOver={onMouseOver}
-    onMouseOut={onMouseOut}
-    style={{ cursor: 'pointer', transition: 'fill 0.2s, stroke 0.2s' }}
-  />
-);
-
-// -----------------------------
-// Connection Line Between Nodes
-// -----------------------------
-const ConnectionLine = ({ x1, y1, x2, y2, type, isHighlighted }: any) => (
-  <line
-    x1={x1}
-    y1={y1}
-    x2={x2}
-    y2={y2}
-    stroke={type === 'friend' ? '#3b82f6' : '#ef4444'}
-    strokeWidth={isHighlighted ? 3 : 1.5}
-    strokeOpacity={isHighlighted ? 1 : 0.6}
-    style={{ transition: 'stroke-width 0.2s, stroke-opacity 0.2s' }}
-  />
-);
-
-// -----------------------------
 // Semicircle Chart
 // -----------------------------
-const SemicircleChart = ({ label, value, total, color = "#3b82f6" }:any) => {
+const SemicircleChart = ({ label, value, total, color = "#3b82f6" }: any) => {
   const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
   const dashArray = 2 * Math.PI * 40;
   const dashOffset = dashArray * (1 - percentage / 100);
@@ -101,7 +71,6 @@ const SemicircleChart = ({ label, value, total, color = "#3b82f6" }:any) => {
 export default function StudentAnalysis() {
   const [studentClass, setStudentClass] = useState<Class | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [hoveredStudent, setHoveredStudent] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -156,7 +125,6 @@ export default function StudentAnalysis() {
   const disrespectfulList = parseList(selectedStudent.disrespectfull);
 
   const disrespectfulCount = disrespectfulList.length;
-  const { nodes, links } = processGraph(studentClass.students);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -171,105 +139,10 @@ export default function StudentAnalysis() {
       </div>
 
       {/* Graph Container */}
-      <div className="bg-white p-4 rounded-xl shadow-md relative">
+      <div className="w-full h-full p-4 rounded-xl relative">
         <h4 className="text-lg font-semibold text-gray-800 mb-2">Class Relationship Graph</h4>
-        <svg viewBox="0 0 600 400" className="w-full h-[300px]">
-          {/* Legend */}
-          <g transform="translate(460, 20)">
-            <line x1={0} y1={0} x2={20} y2={0} stroke="#3b82f6" strokeWidth={2} />
-            <text x={25} y={5} fontSize={12} fill="#4b5563">Friend</text>
-            <line x1={0} y1={20} x2={20} y2={20} stroke="#ef4444" strokeWidth={2} />
-            <text x={25} y={25} fontSize={12} fill="#4b5563">Disrespectful</text>
-          </g>
-
-          {/* Graph links */}
-          {links.map((link, i) => (
-            <ConnectionLine
-              key={i}
-              x1={link.source.x}
-              y1={link.source.y}
-              x2={link.target.x}
-              y2={link.target.y}
-              type={link.type}
-              isHighlighted={
-                link.source.id === selectedStudent.id ||
-                link.target.id === selectedStudent.id
-              }
-            />
-          ))}
-
-          {/* Graph nodes */}
-          {nodes.map((node) => (
-            <g key={node.id}>
-              <StudentNode
-                x={node.x}
-                y={node.y}
-                radius={15}
-                isHovered={hoveredStudent === node.name}
-                isSelected={node.id === selectedStudent.id}
-                onMouseOver={() => setHoveredStudent(node.name)}
-                onMouseOut={() => setHoveredStudent(null)}
-              />
-              <text
-                x={node.x}
-                y={node.y}
-                fontSize={10}
-                fill="white"
-                textAnchor="middle"
-                dy={4}
-              >
-                {node.name.slice(0, 2)}
-              </text>
-            </g>
-          ))}
-        </svg>
-
-        {/* Hovered name display */}
-        {hoveredStudent && (
-          <div className="absolute top-4 left-4 bg-white px-3 py-2 rounded shadow text-sm font-medium text-gray-800 border border-gray-200">
-            {hoveredStudent}
-          </div>
-        )}
+        <ClassGraph students={studentClass.students} />
       </div>
     </div>
   );
-}
-
-// -----------------------------
-// Graph Layout Generator
-// -----------------------------
-function processGraph(students: Student[]) {
-  const nodes = students.map((student, i) => {
-    const angle = (i / students.length) * Math.PI * 2;
-    const r = 140, cx = 300, cy = 200;
-    return {
-      ...student,
-      x: cx + r * Math.cos(angle),
-      y: cy + r * Math.sin(angle),
-    };
-  });
-
-  const links: any[] = [];
-
-  nodes.forEach(source => {
-    const friends = (source.friends || "").split(",").map(n => n.trim()).filter(Boolean);
-    const enemies = (source.disrespectfull || "").split(",").map(n => n.trim()).filter(Boolean);
-
-    friends.forEach(name => {
-      const target = nodes.find(n => n.name.trim().toLowerCase() === name.toLowerCase());
-      if (target && target.id !== source.id) {
-        links.push({ source, target, type: "friend" });
-      }
-    });
-
-    enemies.forEach(name => {
-      const target = nodes.find(n => n.name.trim().toLowerCase() === name.toLowerCase());
-      if (target && target.id !== source.id) {
-        links.push({ source, target, type: "disrespectful" });
-      }
-    });
-
-  });
-
-  return { nodes, links };
 }

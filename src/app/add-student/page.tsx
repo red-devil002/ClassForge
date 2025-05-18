@@ -597,7 +597,7 @@ export default function AddStudentForm() {
                                 </button>
                             )}
                             
-                            {currentStep < 4 ? (
+                            {currentStep <= 4 ? (
                                 <button
                                     type="button"
                                     onClick={handleNext}

@@ -7,9 +7,13 @@ import SemicircleChart from "./SemicircleChart";
 type Student = {
   id: string;
   name: string;
+  age: number;
+  grades: string;  // You can change this to number[] or object if needed
+  gender: string;
   friends: string;
   disrespectfull: string;
 };
+
 
 type Class = {
   id: string;
@@ -45,12 +49,30 @@ export default function TeacherAnalysis() {
 
       {classes.map((cls) => {
         const students = cls.students;
+        const totalStudents = students.length;
 
-        const numberOfFriends = students.flatMap((s) => s.friends ? s.friends.split(",").filter((f: any) => f.trim()) : []).length;
-        const numberOfDisrespect = students.flatMap((s) => s.disrespectfull ? s.disrespectfull.split(",").filter((f: any) => f.trim()) : []).length;
+        // Create a Set of IDs in this class
+        const studentIdsInClass = new Set(students.map((s) => s.name));
+        console.log("studentIdsInClass: ", studentIdsInClass)
+        // Calculate total in-class friends
+        const totalInClassFriends = students.reduce((acc, student) => {
+          const friends = student.friends?.split(",").map(f => f.trim()).filter(Boolean) || [];
+          console.log("friends: ", friends)
+          const validFriends = friends.filter(f => studentIdsInClass.has(f));
+          return acc + validFriends.length;
+        }, 0);
 
-        const friendPercentage = studentsLength > 0 ? (numberOfFriends / studentsLength) * 100 : 0;
-        const disrespectPercentage = studentsLength > 0 ? (numberOfDisrespect / studentsLength) * 100 : 0;
+        // Calculate total in-class disrespectful peers
+        const totalInClassDisrespect = students.reduce((acc, student) => {
+          const disrespectful = student.disrespectfull?.split(",").map(f => f.trim()).filter(Boolean) || [];
+          const validDisrespectful = disrespectful.filter(f => studentIdsInClass.has(f));
+          return acc + validDisrespectful.length;
+        }, 0);
+
+        // Averages per student
+        const averageFriends = totalStudents > 0 ? totalInClassFriends / totalStudents : 0;
+        const averageDisrespect = totalStudents > 0 ? totalInClassDisrespect / totalStudents : 0;
+
         return (
           <div key={cls.id} className="bg-white rounded-xl shadow-md p-6 space-y-6 hover:shadow-lg transition">
             <div className="flex items-center justify-between">
@@ -61,28 +83,28 @@ export default function TeacherAnalysis() {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-6 mt-4">
-              {/* Left side - Graph */}
+              {/* Graph */}
               <div className="lg:w-1/2 w-full min-h-[300px]">
                 <h4 className="text-md font-semibold text-gray-700 mb-2">Relationship Graph</h4>
                 <ClassGraph students={students} />
               </div>
 
-              {/* Right side - Charts */}
+              {/* Charts */}
               <div className="lg:w-1/2 w-full flex flex-col justify-center space-y-6">
                 <div className="w-full min-h-[180px]">
                   <SemicircleChart
                     label="Friends"
-                    value={numberOfFriends}
-                    total={studentsLength}
-                    percentage={friendPercentage.toFixed(0)}
+                    value={Number(averageFriends.toFixed(1))} // Average friends per student
+                    total={totalStudents}
+                    percentage={(averageFriends * 10).toFixed(0)} // Optional: Adjusted percentage scale
                   />
                 </div>
                 <div className="w-full min-h-[180px]">
                   <SemicircleChart
                     label="Disrespectful"
-                    value={numberOfDisrespect}
-                    total={studentsLength}
-                    percentage={disrespectPercentage.toFixed(0)}
+                    value={Number(averageDisrespect.toFixed(1))}
+                    total={totalStudents}
+                    percentage={(averageDisrespect * 10).toFixed(0)} // Optional: Adjusted scale
                     color="#ef4444"
                   />
                 </div>
@@ -91,6 +113,7 @@ export default function TeacherAnalysis() {
           </div>
         );
       })}
+
 
       {classes.length === 0 && (
         <div className="text-center text-gray-600 py-20">

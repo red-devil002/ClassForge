@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/context/auth-context";
+import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,7 +35,7 @@ type FormValues = z.infer<typeof formSchema>;
 export function SignInForm() {
   const { signIn, isLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter()
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,7 +47,11 @@ export function SignInForm() {
   const onSubmit = async (values: FormValues) => {
     setError(null);
     try {
-      await signIn(values.email, values.password);
+      const role = await signIn(values.email, values.password);
+      console.log(role)
+      if (role === 'ADMIN') router.push('/admin');
+      else if (role === 'TEACHER') router.push('/teacher');
+      else if (role === 'STUDENT') router.push('/student');
     } catch (err: any) {
       setError(err.message || "Invalid credentials. Please try again.");
     }

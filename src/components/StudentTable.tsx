@@ -7,8 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { User, UserPlus, Users, AlertTriangle, Book, Heart, Trash2, Edit, Save, X, Search, Award } from "lucide-react";
+import { UserPlus, Users, AlertTriangle, Trash2, Edit, Save, X, Search, Award, FileDown, FileText } from "lucide-react";
 import toast from "react-hot-toast";
+// Import Papaparse for CSV generation
+import Papa from "papaparse";
+// Import XLSX for Excel generation
+import * as XLSX from "xlsx";
 
 const socioEconomicOptions = [
     "Low Income", "Lower Middle", "Middle", "Upper Middle", "High Income"
@@ -30,6 +34,208 @@ type Student = {
     email: string;
     password: string;
 };
+
+// Add Student Dialog Component
+function AddStudentTable({ isAddDialogOpen, setIsAddDialogOpen, newStudent, setNewStudent, handleAddStudent, isLoading }: { isAddDialogOpen: any, setIsAddDialogOpen: any, newStudent: any, setNewStudent: any, handleAddStudent: any, isLoading: any }) {
+    return (
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogContent className="sm:max-w-md md:max-w-lg lg:max-w-xl">
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-serif flex items-center">
+                        <UserPlus className="h-5 w-5 mr-2 text-indigo-700" />
+                        Add New Student
+                    </DialogTitle>
+                    <DialogDescription>
+                        Fill in the student details below.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="name">Full Name *</Label>
+                        <Input
+                            id="name"
+                            value={newStudent.name}
+                            onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                            placeholder="John Doe"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="gender">Gender</Label>
+                        <Select
+                            value={newStudent.gender}
+                            onValueChange={(value) => setNewStudent({ ...newStudent, gender: value })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Male">Male</SelectItem>
+                                <SelectItem value="Female">Female</SelectItem>
+                                <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="age">Age</Label>
+                        <Input
+                            id="age"
+                            type="number"
+                            value={newStudent.age || ""}
+                            onChange={(e) => setNewStudent({ ...newStudent, age: parseInt(e.target.value) })}
+                            placeholder="15"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="academicScore">Academic Score</Label>
+                        <Input
+                            id="academicScore"
+                            type="number"
+                            value={newStudent.academicScore || ""}
+                            onChange={(e) => setNewStudent({ ...newStudent, academicScore: parseFloat(e.target.value) })}
+                            placeholder="85"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="grades">Grades</Label>
+                        <Input
+                            id="grades"
+                            value={newStudent.grades}
+                            onChange={(e) => setNewStudent({ ...newStudent, grades: e.target.value })}
+                            placeholder="A, B, C"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="wellBeingScore">Wellbeing Score</Label>
+                        <Input
+                            id="wellBeingScore"
+                            type="number"
+                            value={newStudent.wellBeingScore || ""}
+                            onChange={(e) => setNewStudent({ ...newStudent, wellBeingScore: parseFloat(e.target.value) })}
+                            placeholder="75"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="socioEconomicsStatus">Socioeconomic Status</Label>
+                        <Select
+                            value={newStudent.socioEconomicsStatus}
+                            onValueChange={(value) => setNewStudent({ ...newStudent, socioEconomicsStatus: value })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {socioEconomicOptions.map((option) => (
+                                    <SelectItem key={option} value={option}>
+                                        {option}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="assigned_class">Assigned Class</Label>
+                        <Input
+                            id="assigned_class"
+                            value={newStudent.assigned_class}
+                            onChange={(e) => setNewStudent({ ...newStudent, assigned_class: e.target.value })}
+                            placeholder="Class A"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="activities">Activities</Label>
+                        <Input
+                            id="activities"
+                            value={newStudent.activities}
+                            onChange={(e) => setNewStudent({ ...newStudent, activities: e.target.value })}
+                            placeholder="Football, Chess"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="friends">Friends (comma separated)</Label>
+                        <Input
+                            id="friends"
+                            value={newStudent.friends}
+                            onChange={(e) => setNewStudent({ ...newStudent, friends: e.target.value })}
+                            placeholder="Jane, Mike"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="disrespectfull">Conflicts (comma separated)</Label>
+                        <Input
+                            id="disrespectfull"
+                            value={newStudent.disrespectfull}
+                            onChange={(e) => setNewStudent({ ...newStudent, disrespectfull: e.target.value })}
+                            placeholder="Alex, Sam"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                            id="email"
+                            value={newStudent.email}
+                            onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                            placeholder="john.doe@example.com"
+                        />
+                    </div>
+                    <div className="flex flex-col space-y-2">
+                        <Label htmlFor="password">Password *</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            value={newStudent.password}
+                            onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
+                            placeholder="********"
+                        />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleAddStudent}
+                        disabled={isLoading}
+                        className="bg-indigo-700 text-white hover:bg-indigo-800"
+                    >
+                        {isLoading ? (
+                            <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        ) : "Add Student"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
+// Confirm Delete Dialog Component
+function ConfirmDeleteDialog({ confirmDeleteId, setConfirmDeleteId, handleDelete }: { confirmDeleteId: number | null, setConfirmDeleteId: (id: number | null) => void, handleDelete: () => void }) {
+    return (
+        <Dialog open={confirmDeleteId !== null} onOpenChange={() => setConfirmDeleteId(null)}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="text-red-600 flex items-center">
+                        <AlertTriangle className="h-5 w-5 mr-2" />
+                        Confirm Deletion
+                    </DialogTitle>
+                    <DialogDescription>
+                        Are you sure you want to delete this student? This action cannot be undone.
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setConfirmDeleteId(null)}>
+                        Cancel
+                    </Button>
+                    <Button className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDelete}>
+                        Delete
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export default function StudentTable({ students, setStudents }: { students: Student[], setStudents: (s: any) => void }) {
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -66,11 +272,6 @@ export default function StudentTable({ students, setStudents }: { students: Stud
     }, {} as Record<string, number>);
 
     const totalStudents = students.length;
-    const avgAcademic = students.length > 0 ?
-        students.reduce((sum, student) => sum + student.academicScore, 0) / students.length : 0;
-    const avgWellbeing = students.length > 0 ?
-        students.reduce((sum, student) => sum + student.wellBeingScore, 0) / students.length : 0;
-
     const handleEdit = (id: number) => {
         const target = students.find((s) => s.student_id === id);
         if (target) {
@@ -249,6 +450,81 @@ export default function StudentTable({ students, setStudents }: { students: Stud
         return "text-red-600";
     };
 
+    // Function to download student data as CSV
+    const downloadCSV = () => {
+        try {
+            // Remove sensitive data like password before exporting
+            const exportData = students.map(student => {
+                const { password, ...safeData } = student;
+                return safeData;
+            });
+
+            // Convert data to CSV
+            const csv = Papa.unparse(exportData);
+
+            // Create a blob and download link
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'student_data.csv');
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast.success("CSV download successful!");
+        } catch (error) {
+            console.error("CSV export error:", error);
+            toast.error("Failed to download CSV");
+        }
+    };
+
+    // Function to download student data as Excel
+    const downloadExcel = () => {
+        try {
+            // Remove sensitive data like password before exporting
+            const exportData = students.map(student => {
+                const { password, ...safeData } = student;
+                return safeData;
+            });
+
+            // Create workbook and worksheet
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+
+            // Format column widths for better readability
+            const cols = [
+                { wch: 10 }, // student_id
+                { wch: 20 }, // name
+                { wch: 10 }, // gender
+                { wch: 8 }, // age
+                { wch: 15 }, // academicScore
+                { wch: 15 }, // grades
+                { wch: 15 }, // wellBeingScore
+                { wch: 20 }, // socioEconomicsStatus
+                { wch: 20 }, // activities
+                { wch: 15 }, // assigned_class
+                { wch: 30 }, // friends
+                { wch: 30 }, // disrespectfull
+                { wch: 25 }, // email
+            ];
+
+            worksheet['!cols'] = cols;
+
+            // Generate Excel file
+            XLSX.writeFile(workbook, "student_data.xlsx");
+
+            toast.success("Excel download successful!");
+        } catch (error) {
+            console.error("Excel export error:", error);
+            toast.error("Failed to download Excel file");
+        }
+    };
+
     return (
         <div className="max-w-6xl w-full mx-auto mt-4 md:mt-8 p-4 md:p-8 bg-white shadow-lg rounded-lg border border-gray-300">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
@@ -293,24 +569,7 @@ export default function StudentTable({ students, setStudents }: { students: Stud
                         </div>
                     </div>
                 </div>
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <div className="flex items-center">
-                        <Book className="h-8 w-8 text-blue-600 mr-3" />
-                        <div>
-                            <p className="text-sm text-gray-500">Avg Academic Score</p>
-                            <p className="text-2xl font-bold">{avgAcademic.toFixed(1)}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
-                    <div className="flex items-center">
-                        <Heart className="h-8 w-8 text-pink-600 mr-3" />
-                        <div>
-                            <p className="text-sm text-gray-500">Avg Wellbeing</p>
-                            <p className="text-2xl font-bold">{avgWellbeing.toFixed(1)}</p>
-                        </div>
-                    </div>
-                </div>
+
                 <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
                     <div className="flex items-center">
                         <Award className="h-8 w-8 text-amber-600 mr-3" />
@@ -322,19 +581,42 @@ export default function StudentTable({ students, setStudents }: { students: Stud
                 </div>
             </div>
 
-            {/* Search bar */}
-            <div className="mb-6 relative">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <Search className="h-5 w-5 text-gray-400" />
+            {/* Download Buttons + Search Bar Row */}
+            <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
+                {/* Download buttons */}
+                <div className="flex gap-2">
+                    <Button
+                        onClick={downloadCSV}
+                        disabled={students.length === 0}
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        <FileText className="h-5 w-5 mr-2" />
+                        Download CSV
+                    </Button>
+                    <Button
+                        onClick={downloadExcel}
+                        disabled={students.length === 0}
+                        className="bg-green-600 hover:bg-green-700 text-black"
+                    >
+                        <FileDown className="h-5 w-5 mr-2" />
+                        Download Excel
+                    </Button>
+                </div>
+
+                {/* Search bar */}
+                <div className="w-full md:w-1/2 lg:w-1/3 relative">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <Search className="h-5 w-5 text-gray-400" />
+                        </div>
+                        <Input
+                            type="text"
+                            placeholder="Search students by name or class..."
+                            className="pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                    <Input
-                        type="text"
-                        placeholder="Search students by name or class..."
-                        className="pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
                 </div>
             </div>
 
@@ -534,237 +816,20 @@ export default function StudentTable({ students, setStudents }: { students: Stud
             </div>
 
             {/* Add Student Dialog using shadcn/ui Dialog component */}
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl md:text-2xl font-serif text-center text-gray-800 border-b-2 pb-2">Add New Student</DialogTitle>
-                        <DialogDescription className="text-center pt-2">
-                            Fill in the student information below. Fields marked with * are required.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-3 mt-4">
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="name">Name *</Label>
-                            <Input
-                                id="name"
-                                className="border-2 border-gray-300"
-                                value={newStudent.name}
-                                onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
-                                placeholder="Student Name"
-                                required
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="grid w-full items-center gap-1.5">
-                                <Label htmlFor="gender">Gender</Label>
-                                <Select
-                                    value={newStudent.gender}
-                                    onValueChange={(value) => setNewStudent({ ...newStudent, gender: value })}
-                                >
-                                    <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select gender" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Male">Male</SelectItem>
-                                        <SelectItem value="Female">Female</SelectItem>
-                                        <SelectItem value="Other">Other</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="grid w-full items-center gap-1.5">
-                                <Label htmlFor="age">Age</Label>
-                                <Input
-                                    id="age"
-                                    type="number"
-                                    className="border-2 border-gray-300"
-                                    value={newStudent.age}
-                                    onChange={(e) => setNewStudent({ ...newStudent, age: parseInt(e.target.value) })}
-                                    placeholder="Age"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="grid w-full items-center gap-1.5">
-                                <Label htmlFor="academic">Academic Score</Label>
-                                <Input
-                                    id="academic"
-                                    type="number"
-                                    className="border-2 border-gray-300"
-                                    value={newStudent.academicScore}
-                                    onChange={(e) => setNewStudent({ ...newStudent, academicScore: parseFloat(e.target.value) })}
-                                    placeholder="Academic Score"
-                                />
-                            </div>
-
-                            <div className="grid w-full items-center gap-1.5">
-                                <Label htmlFor="wellBeingScore">WellBeing Score</Label>
-                                <Input
-                                    id="wellBeingScore"
-                                    type="number"
-                                    className="border-2 border-gray-300"
-                                    value={newStudent.wellBeingScore}
-                                    onChange={(e) => setNewStudent({ ...newStudent, wellBeingScore: parseFloat(e.target.value) })}
-                                    placeholder="Wellbeing Score"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="grades">Grades</Label>
-                            <Input
-                                id="grades"
-                                className="border-2 border-gray-300"
-                                value={newStudent.grades}
-                                onChange={(e) => setNewStudent({ ...newStudent, grades: e.target.value })}
-                                placeholder="Enter grades (e.g., A,B,C)"
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="socioEconomicsStatus">Socio-Economic Status</Label>
-                            <Select
-                                value={newStudent.socioEconomicsStatus}
-                                onValueChange={(value) => setNewStudent({ ...newStudent, socioEconomicsStatus: value })}
-                            >
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {socioEconomicOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                            {option}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="activities">Activities</Label>
-                            <Input
-                                id="activities"
-                                className="border-2 border-gray-300"
-                                value={newStudent.activities}
-                                onChange={(e) => setNewStudent({ ...newStudent, activities: e.target.value })}
-                                placeholder="Enter activities separated by commas"
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="friends">Friends</Label>
-                            <Input
-                                id="friends"
-                                className="border-2 border-gray-300"
-                                value={newStudent.friends}
-                                onChange={(e) => setNewStudent({ ...newStudent, friends: e.target.value })}
-                                placeholder="Enter friends separated by commas"
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="disrespectful">Disrespectful To</Label>
-                            <Input
-                                id="disrespectful"
-                                className="border-2 border-gray-300"
-                                value={newStudent.disrespectfull}
-                                onChange={(e) => setNewStudent({ ...newStudent, disrespectfull: e.target.value })}
-                                placeholder="Enter names separated by commas"
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="class">Class</Label>
-                            <Input
-                                id="class"
-                                className="border-2 border-gray-300"
-                                value={newStudent.assigned_class}
-                                onChange={(e) => setNewStudent({ ...newStudent, assigned_class: e.target.value })}
-                                placeholder="Enter Assigned Class"
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="email">Email *</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                className="border-2 border-gray-300"
-                                value={newStudent.email}
-                                onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-                                placeholder="student@example.com"
-                                required
-                            />
-                        </div>
-
-                        <div className="grid w-full items-center gap-1.5">
-                            <Label htmlFor="password">Password *</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                className="border-2 border-gray-300"
-                                value={newStudent.password}
-                                onChange={(e) => setNewStudent({ ...newStudent, password: e.target.value })}
-                                placeholder="Enter password"
-                                required
-                            />
-                        </div>
-                    </div>
-                    <DialogFooter className="sm:justify-end">
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsAddDialogOpen(false)}
-                            className="bg-gray-300 text-gray-800 hover:bg-gray-400"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleAddStudent}
-                            className="bg-indigo-700 text-white hover:bg-indigo-800"
-                            disabled={!newStudent.name?.trim() || isLoading}
-                        >
-                            {isLoading ? (
-                                <>
-                                    <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Processing...
-                                </>
-                            ) : "Add Student"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
+            <AddStudentTable
+                isAddDialogOpen={isAddDialogOpen}
+                setIsAddDialogOpen={setIsAddDialogOpen}
+                newStudent={newStudent}
+                setNewStudent={setNewStudent}
+                handleAddStudent={handleAddStudent}
+                isLoading={isLoading}
+            />
             {/* Confirm Deletion Dialog using shadcn/ui Dialog component */}
-            <Dialog open={confirmDeleteId !== null} onOpenChange={(open) => !open && setConfirmDeleteId(null)}>
-                <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg md:text-xl font-serif text-center border-b-2 pb-2">Confirm Deletion</DialogTitle>
-                        <DialogDescription className="text-center pt-4">
-                            Are you sure you want to delete this student?
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="sm:justify-center pt-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => setConfirmDeleteId(null)}
-                            className="bg-gray-300 text-gray-800 hover:bg-gray-400"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleDelete}
-                            className="bg-red-600 text-white hover:bg-red-700"
-                        >
-                            Delete
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <ConfirmDeleteDialog
+                confirmDeleteId={confirmDeleteId}
+                setConfirmDeleteId={setConfirmDeleteId}
+                handleDelete={handleDelete}
+            />
         </div>
     );
 }

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import StudentTable from '@/components/StudentTable';
 import PrioritizationSettingsDialog from '@/components/PrioritizationSettingsDialog';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/context/auth-context';
 
 type Student = {
     student_id: number;
@@ -24,7 +25,7 @@ type Student = {
 export default function page() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [students, setStudents] = useState<Student[]>([]);
-
+    const { role } = useAuth()
     // Form submission state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -74,7 +75,7 @@ export default function page() {
             setIsSubmitting(false)
         }
     };
-
+    if (role == "STUDENT") return <>You Do not have access to this page.</>
     return (
         <div className="w-full h-screen bg-gray-50 p-8">
             <div className="max-w-4xl mx-auto">

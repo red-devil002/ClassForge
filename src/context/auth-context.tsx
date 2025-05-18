@@ -5,6 +5,7 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useRef,
 } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -17,8 +18,8 @@ type AuthContextType = {
   user: User | null;
   role: Role | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, role: Role, name: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<Role | null>;
+  signUp: (email: string, password: string, role: Role, name: string) => Promise<Role | null>;
   signOut: () => Promise<void>;
 };
 
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<Role | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const skipInitialFetch = useRef(false); // ✅ flag to prevent double fetch
 
   useEffect(() => {
     const getSession = async () => {
@@ -37,7 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);
-          await fetchUserRole(session.user.id);
+          if (!skipInitialFetch.current) {
+            await fetchUserRole(session.user.id);
+          }
         }
       } catch (error) {
         console.error('Error fetching session:', error);
@@ -53,7 +57,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (_event, session) => {
         if (session?.user) {
           setUser(session.user);
-          await fetchUserRole(session.user.id);
+          if (!skipInitialFetch.current) {
+            await fetchUserRole(session.user.id);
+          }
         } else {
           setUser(null);
           setRole(null);
@@ -65,52 +71,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchUserRole = async (userId: string) => {
+
+  const fetchUserRole = async (userId: string): Promise<Role | null> => {
     try {
       const response = await fetch(`/api/users/${userId}`, { method: "GET" });
       if (response.ok) {
         const data = await response.json();
-        console.log(data)
         setRole(data.role);
+        return data.role as Role;
       } else {
         throw new Error('Failed to fetch user role');
       }
     } catch (error) {
       console.error('Error fetching role:', error);
       toast.error('Failed to retrieve your user role.');
+      return null;
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+
+  const signIn = async (email: string, password: string): Promise<Role | null> => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
       if (data?.user) {
-        await fetchUserRole(data.user.id);
-
-        // Wait for role to update before redirecting
-        if (role === 'ADMIN') router.push('/admin');
-        else if (role === 'TEACHER') router.push('/teacher');
-        else if (role === 'STUDENT') router.push('/student');
+        const userRole = await fetchUserRole(data.user.id);
+        toast.success("You've been signed in.");
+        return userRole;
       }
 
-      toast.success("You've been signed in.");
+      return null;
     } catch (error: any) {
       toast.error(error.message || 'Sign In failed. An unknown error occurred.');
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string, role: Role, name: string) => {
+
+  const signUp = async (
+    email: string,
+    password: string,
+    role: Role,
+    name: string
+  ): Promise<Role | null> => {
     try {
       setIsLoading(true);
+      skipInitialFetch.current = true; // ✅ prevent onAuthStateChange from fetching early
 
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -137,13 +147,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       toast.success('Your account has been successfully created.');
-      await signIn(email, password);
+
+      const signedInRole = await signIn(email, password);
+
+      return signedInRole;
     } catch (error: any) {
       toast.error(error.message || 'Sign Up failed. An unknown error occurred.');
+      return null;
     } finally {
+      skipInitialFetch.current = false; // ✅ reset for future auth state changes
       setIsLoading(false);
     }
   };
+
+
 
   const signOut = async () => {
     try {

@@ -1,6 +1,5 @@
 
 import { createUser } from '@/lib/api-handlers';
-import { db } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +11,7 @@ export async function POST(request: Request) {
     }
 
     const user = await createUser({ id, email, role, name });
-    return Response.json({ user });
+    return Response.json({ message:"User created",user },{status: 200});
   } catch (error: any) {
     return Response.json({ error: error.message || "Internal server error" }, { status: 500 });
   }
